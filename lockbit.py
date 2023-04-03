@@ -69,240 +69,285 @@ def check_for_lockbit_behaviors(json_file):
     ]
     
     URLS_SUSPECTS = ["http://lockbit","https://bigblog.at","https://decoding.at","https://www.premiumize.com","https://anonfiles.com","https://www.sendspace.com","https://fex.net","https://transfer.sh","https://send.exploit.in","https://aka.ms/","http://www2.hursley.ibm.com/"]
-    note_detected = ["Restore-My-Files.txt -> ","readme"]
+    NT_DETECTED = ["Restore-My-Files.txt -> ","readme"]
     # Evaluation 
 
     # Registry Key of file :
-    cpt_reg = 0
-    for i in dictionary["data"]["registry_keys_opened"] :
-        for j in LOCKBIT_REGISTRY_KEYS:
-            if j in i:
-                cpt_reg += 1
-    print("Total est : "+str(len(dictionary["data"]["registry_keys_opened"]))+"/"+str(cpt_reg))
+    try :
+        cpt_reg = 0
+        for i in dictionary["data"]["registry_keys_opened"] :
+            for j in LOCKBIT_REGISTRY_KEYS:
+                if j in i:
+                    cpt_reg += 1
+        print("Total est : "+str(len(dictionary["data"]["registry_keys_opened"]))+"/"+str(cpt_reg))
+    except KeyError:
+        cpt_reg = 0
 
     # processes terminated
-    cpt_proc_ter = 0
-    for i in dictionary["data"]["processes_terminated"] :
-        for j in PROCESSES_KILLED:
-            if j in i:
-                cpt_proc_ter += 1
-        for j in SUSPICIOUS_PROCESS_NAMES:
-            if j in i:
-                cpt_proc_ter += 1
-    print("Total est : "+str(len(dictionary["data"]["processes_terminated"]))+"/"+str(cpt_proc_ter))
+    try :
+        cpt_proc_ter = 0
+        for i in dictionary["data"]["processes_terminated"] :
+            for j in PROCESSES_KILLED:
+                if j in i:
+                    cpt_proc_ter += 1
+            for j in SUSPICIOUS_PROCESS_NAMES:
+                if j in i:
+                    cpt_proc_ter += 1
+        print("Total est : "+str(len(dictionary["data"]["processes_terminated"]))+"/"+str(cpt_proc_ter))
+    except KeyError:
+        cpt_proc_ter = 0
 
     # files deleted
-    cpt_files_deleted = 0
-    for i in dictionary["data"]["files_deleted"]:
-        for j in LOCKBIT_EXTENSIONS:
-            if j in i:
-                cpt_files_deleted += 1
-        for j in PATH_RANSOMWARE:
-            if j in i:
-                if ".exe" in i:
+    try :
+        cpt_files_deleted = 0
+        for i in dictionary["data"]["files_deleted"]:
+            for j in LOCKBIT_EXTENSIONS:
+                if j in i:
                     cpt_files_deleted += 1
-    print("Total est : "+str(len(dictionary["data"]["files_deleted"]))+"/"+str(cpt_files_deleted))
+            for j in PATH_RANSOMWARE:
+                if j in i:
+                    if ".exe" in i:
+                        cpt_files_deleted += 1
+        print("Total est : "+str(len(dictionary["data"]["files_deleted"]))+"/"+str(cpt_files_deleted))
+    except KeyError:
+        cpt_files_deleted = 0
 
     # signature matches
-    cpt_signature_matches = 0
-    for i in dictionary["data"]["signature_matches"]:
-        for j in i:
-            if j == "match_data":
-                for k in i[j]:
-                    for l in LOCKBIT_EXTENSIONS:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in PATH_RANSOMWARE:
-                        if l in k:
-                            if ".exe" in i:
-                                cpt_files_deleted += 1
-                    for l in PROCESSES_KILLED:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in SUSPICIOUS_PROCESS_NAMES:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in LOCKBIT_REGISTRY_KEYS:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in note_detected:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in URLS_SUSPECTS:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in STARTUP_DIRECTORIES:
-                        if l in k:
-                            cpt_signature_matches += 1
-                    for l in SERVICES_KILLED:
-                        if l in k:
-                            cpt_signature_matches += 1
-    print("Total est : "+str(len(dictionary["data"]["signature_matches"]))+"/"+str(cpt_signature_matches))
+    try :
+        cpt_signature_matches = 0
+        for i in dictionary["data"]["signature_matches"]:
+            for j in i:
+                if j == "match_data":
+                    for k in i[j]:
+                        for l in LOCKBIT_EXTENSIONS:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in PATH_RANSOMWARE:
+                            if l in k:
+                                if ".exe" in i:
+                                    cpt_files_deleted += 1
+                        for l in PROCESSES_KILLED:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in SUSPICIOUS_PROCESS_NAMES:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in LOCKBIT_REGISTRY_KEYS:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in NT_DETECTED:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in URLS_SUSPECTS:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in STARTUP_DIRECTORIES:
+                            if l in k:
+                                cpt_signature_matches += 1
+                        for l in SERVICES_KILLED:
+                            if l in k:
+                                cpt_signature_matches += 1
+        print("Total est : "+str(len(dictionary["data"]["signature_matches"]))+"/"+str(cpt_signature_matches))
+    except KeyError :
+        cpt_signature_matches = 0
 
     # mutexes created
-    cpt_mutexes_created = 0
-    for i in dictionary["data"]["mutexes_created"]:
-        if "Global\\" in i:
-            #print(i.split("\\")[-1])
-            if is_md4(i.split("\\")[-1]) :
-                cpt_mutexes_created += 1
-    print("Total est : "+str(len(dictionary["data"]["mutexes_created"]))+"/"+str(cpt_mutexes_created))
+    try :
+        cpt_mutexes_created = 0
+        for i in dictionary["data"]["mutexes_created"]:
+            if "Global\\" in i:
+                #print(i.split("\\")[-1])
+                if is_md4(i.split("\\")[-1]) :
+                    cpt_mutexes_created += 1
+        print("Total est : "+str(len(dictionary["data"]["mutexes_created"]))+"/"+str(cpt_mutexes_created))
+    except KeyError :
+        cpt_mutexes_created = 0
 
     # files_opened
-    cpt_files_opened = 0
-    for i in dictionary["data"]["files_opened"]:
-        for j in LOCKBIT_EXTENSIONS:
-            if j in i:
-                cpt_files_opened += 1
-        for j in PATH_RANSOMWARE:
-            if j in i:
-                if ".exe" in i:
+    try :
+        cpt_files_opened = 0
+        for i in dictionary["data"]["files_opened"]:
+            for j in LOCKBIT_EXTENSIONS:
+                if j in i:
                     cpt_files_opened += 1
-        for j in PROCESSES_KILLED:
-            if j in i:
-                cpt_files_opened += 1
-        for j in SUSPICIOUS_PROCESS_NAMES:
-            if j in i:
-                cpt_files_opened += 1
-        for l in STARTUP_DIRECTORIES:
-            if l in k:
-                cpt_files_opened += 1
-    print("Total est : "+str(len(dictionary["data"]["files_opened"]))+"/"+str(cpt_files_opened))
+            for j in PATH_RANSOMWARE:
+                if j in i:
+                    if ".exe" in i:
+                        cpt_files_opened += 1
+            for j in PROCESSES_KILLED:
+                if j in i:
+                    cpt_files_opened += 1
+            for j in SUSPICIOUS_PROCESS_NAMES:
+                if j in i:
+                    cpt_files_opened += 1
+            for l in STARTUP_DIRECTORIES:
+                if l in k:
+                    cpt_files_opened += 1
+        print("Total est : "+str(len(dictionary["data"]["files_opened"]))+"/"+str(cpt_files_opened))
+    except KeyError:
+        cpt_files_opened = 0
 
     #registry_keys_set
-    cpt_registry_keys_set = 0
-    for i in dictionary["data"]["registry_keys_set"]:
-        cpt = 0
-        for j in i:
-            if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows\System":
-                cpt = 1
-            if (cpt == 1 and j in "value") and ("GroupPolicyRefreshTimeDC" in i[j] or "GroupPolicyRefreshTimeOffsetDC" in i[j]  or "GroupPolicyRefreshTime" in i[j] or "GroupPolicyRefreshTimeOffset" in i[j] or "EnableSmartScreen" in i[j] or "**del.ShellSmartScreenLevel" in i[j]):
-                cpt_registry_keys_set += 1
-            
-            if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows Defender":
-                cpt = 1
-            if (cpt == 1 and j in "value") and ("DisableAntiSpyware" in i[j] or "DisableRoutinelyTakingAction" in i[j] ):
-                cpt_registry_keys_set += 1
+    try :
+        cpt_registry_keys_set = 0
+        for i in dictionary["data"]["registry_keys_set"]:
+            cpt = 0
+            for j in i:
+                if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows\System":
+                    cpt = 1
+                if (cpt == 1 and j in "value") and ("GroupPolicyRefreshTimeDC" in i[j] or "GroupPolicyRefreshTimeOffsetDC" in i[j]  or "GroupPolicyRefreshTime" in i[j] or "GroupPolicyRefreshTimeOffset" in i[j] or "EnableSmartScreen" in i[j] or "**del.ShellSmartScreenLevel" in i[j]):
+                    cpt_registry_keys_set += 1
+                
+                if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows Defender":
+                    cpt = 1
+                if (cpt == 1 and j in "value") and ("DisableAntiSpyware" in i[j] or "DisableRoutinelyTakingAction" in i[j] ):
+                    cpt_registry_keys_set += 1
 
-            if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows  Defender\Real-Time Protection":
-                cpt = 1
-            if (cpt == 1 and j in "value") and ("DisableRealtimeMonitoring" in i[j] or "DisableBehaviorMonitoring" in i[j] ):
-                cpt_registry_keys_set += 1
-            
-            if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet":
-                cpt = 1
-            if (cpt == 1 and j in "value") and ("SubmitSamplesConsent" in i[j] or "SpynetReporting" in i[j] ):
-                cpt_registry_keys_set += 1
+                if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows  Defender\Real-Time Protection":
+                    cpt = 1
+                if (cpt == 1 and j in "value") and ("DisableRealtimeMonitoring" in i[j] or "DisableBehaviorMonitoring" in i[j] ):
+                    cpt_registry_keys_set += 1
+                
+                if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet":
+                    cpt = 1
+                if (cpt == 1 and j in "value") and ("SubmitSamplesConsent" in i[j] or "SpynetReporting" in i[j] ):
+                    cpt_registry_keys_set += 1
 
-            if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile":
-                cpt = 1
-            if (cpt == 1 and j in "value") and ("EnableFirewall"):
-                cpt_registry_keys_set += 1
-            
-            if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile":
-                cpt = 1
-            if (cpt == 1 and j in "value") and ("EnableFirewall"):
-                cpt_registry_keys_set += 1
-    
-    print("Total est : "+str(len(dictionary["data"]["registry_keys_set"]))+"/"+str(cpt_registry_keys_set))
+                if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\DomainProfile":
+                    cpt = 1
+                if (cpt == 1 and j in "value") and ("EnableFirewall"):
+                    cpt_registry_keys_set += 1
+                
+                if j in "key" and i[j] in r"HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile":
+                    cpt = 1
+                if (cpt == 1 and j in "value") and ("EnableFirewall"):
+                    cpt_registry_keys_set += 1
+        
+        print("Total est : "+str(len(dictionary["data"]["registry_keys_set"]))+"/"+str(cpt_registry_keys_set))
+    except KeyError :
+        cpt_registry_keys_set = 0
 
     # processes_created
-    cpt_processes_created = 0
-    for i in dictionary["data"]["processes_created"]:
-        for j in LOCKBIT_EXTENSIONS:
-            if j in i:
-                cpt_processes_created += 1
-        for j in PATH_RANSOMWARE:
-            if j in i:
-                if ".exe" in i:
+    try :
+        cpt_processes_created = 0
+        for i in dictionary["data"]["processes_created"]:
+            for j in LOCKBIT_EXTENSIONS:
+                if j in i:
                     cpt_processes_created += 1
-        for j in PROCESSES_KILLED:
-            if j in i:
-                cpt_processes_created += 1
-        for j in SUSPICIOUS_PROCESS_NAMES:
-            if j in i:
-                cpt_processes_created += 1
-        for l in STARTUP_DIRECTORIES:
-            if l in k:
-                cpt_processes_created += 1
-    print("Total est : "+str(len(dictionary["data"]["processes_created"]))+"/"+str(cpt_processes_created))
+            for j in PATH_RANSOMWARE:
+                if j in i:
+                    if ".exe" in i:
+                        cpt_processes_created += 1
+            for j in PROCESSES_KILLED:
+                if j in i:
+                    cpt_processes_created += 1
+            for j in SUSPICIOUS_PROCESS_NAMES:
+                if j in i:
+                    cpt_processes_created += 1
+            for l in STARTUP_DIRECTORIES:
+                if l in k:
+                    cpt_processes_created += 1
+        print("Total est : "+str(len(dictionary["data"]["processes_created"]))+"/"+str(cpt_processes_created))
+    except KeyError:
+        cpt_processes_created = 0
 
     # attack_techniques
-    mitre_techniques = ["T1078","T1133","T1189","T1190","T1566","TA0002","T1072","T1547","TA0004","T1027","T1070.004","T1480.001","T1003.001","T1046","T1082","T1614.001","T1021.001","T1071.002","T1572","TA0010","T1567","T1567.002","T1485","T1486","T1489","T1490","T1491.001"]
-    cpt_mitre_attack_techniques = 0
-    for i in dictionary["data"]["attack_techniques"]:
-        for j in mitre_techniques:
-            if j in i:
-                cpt_mitre_attack_techniques += 1
-    print("Total est : "+str(len(dictionary["data"]["mitre_attack_techniques"]))+"/"+str(cpt_mitre_attack_techniques))
+    try :
+        mitre_techniques = ["T1078","T1133","T1189","T1190","T1566","TA0002","T1072","T1547","TA0004","T1027","T1070.004","T1480.001","T1003.001","T1046","T1082","T1614.001","T1021.001","T1071.002","T1572","TA0010","T1567","T1567.002","T1485","T1486","T1489","T1490","T1491.001"]
+        cpt_mitre_attack_techniques = 0
+        for i in dictionary["data"]["attack_techniques"]:
+            for j in mitre_techniques:
+                if j in i:
+                    cpt_mitre_attack_techniques += 1
+        print("Total est : "+str(len(dictionary["data"]["mitre_attack_techniques"]))+"/"+str(cpt_mitre_attack_techniques))
+    except KeyError:
+        cpt_mitre_attack_techniques = 0
 
     # ip_traffic
     """for i in dictionary["data"]["ip_traffic"]:
         print(i)"""
     
     # files_copied
-    cpt_files_copied = 0
-    for i in dictionary["data"]["files_copied"]:
-        for j in LOCKBIT_EXTENSIONS:
-            if j in i["destination"]:
-                cpt_files_copied += 1
-    print("Total est : "+str(4 * len(dictionary["data"]["files_copied"]))+"/"+str(cpt_files_copied))
+    try :
+        cpt_files_copied = 0
+        for i in dictionary["data"]["files_copied"]:
+            for j in LOCKBIT_EXTENSIONS:
+                if j in i["destination"]:
+                    cpt_files_copied += 1
+        print("Total est : "+str(4 * len(dictionary["data"]["files_copied"]))+"/"+str(cpt_files_copied))
+    except KeyError:
+        cpt_files_copied = 0
 
     # files_written
-    cpt_files_written = 0
-    for i in dictionary["data"]["files_written"]:
-        for j in LOCKBIT_EXTENSIONS:
-            if j in i:
-                cpt_files_written += 1
-        for j in SUSPICIOUS_PROCESS_NAMES:
-            if j in i:
-                cpt_files_written += 1
-        for j in STARTUP_DIRECTORIES:
-            if j in i:
-                cpt_files_written += 1
-    print("Total est : "+str(len(dictionary["data"]["files_written"]))+"/"+str(cpt_files_written))
+    try :
+        cpt_files_written = 0
+        for i in dictionary["data"]["files_written"]:
+            for j in LOCKBIT_EXTENSIONS:
+                if j in i:
+                    cpt_files_written += 1
+            for j in SUSPICIOUS_PROCESS_NAMES:
+                if j in i:
+                    cpt_files_written += 1
+            for j in STARTUP_DIRECTORIES:
+                if j in i:
+                    cpt_files_written += 1
+        print("Total est : "+str(len(dictionary["data"]["files_written"]))+"/"+str(cpt_files_written))
+    except KeyError:
+        cpt_files_written = 0
 
     # files_dropped
-    cpt_files_dropped = 0
-    for i in dictionary["data"]["files_dropped"]:
-        for j in LOCKBIT_EXTENSIONS:
-            if j in i["path"]:
-                cpt_files_dropped += 1
-        for j in SUSPICIOUS_PROCESS_NAMES:
-            if j in i["path"]:
-                cpt_files_dropped += 1
-        for j in STARTUP_DIRECTORIES:
-            if j in i["path"]:
-                cpt_files_dropped += 1
-    print("Total est : "+str(len(dictionary["data"]["files_dropped"]))+"/"+str(cpt_files_dropped))
+    try :
+        cpt_files_dropped = 0
+        for i in dictionary["data"]["files_dropped"]:
+            for j in LOCKBIT_EXTENSIONS:
+                if j in i["path"]:
+                    cpt_files_dropped += 1
+            for j in SUSPICIOUS_PROCESS_NAMES:
+                if j in i["path"]:
+                    cpt_files_dropped += 1
+            for j in STARTUP_DIRECTORIES:
+                if j in i["path"]:
+                    cpt_files_dropped += 1
+        print("Total est : "+str(len(dictionary["data"]["files_dropped"]))+"/"+str(cpt_files_dropped))
+    except KeyError:
+        cpt_files_dropped = 0
 
     # command_executions
-    cpt_command_executions = 0
-    for i in dictionary["data"]["command_executions"]:
-        if power_shell in i:
-            cpt_command_executions += 1
+    try :
+        cpt_command_executions = 0
+        for i in dictionary["data"]["command_executions"]:
+            if power_shell in i:
+                cpt_command_executions += 1
 
-    print("Total est : "+str(2*len(dictionary["data"]["files_dropped"]))+"/"+str(cpt_command_executions))
+        print("Total est : "+str(2*len(dictionary["data"]["files_dropped"]))+"/"+str(cpt_command_executions))
+    except KeyError:
+        cpt_command_executions = 0
 
     # services_opened
-    cpt_services_opened = 0
-    for i in dictionary["data"]["services_opened"]:
-        for j in SUSPICIOUS_PROCESS_NAMES:
-            if j in i:
-                cpt_services_opened += 1
-        for j in SERVICES_KILLED:
-            if j in i:
-                cpt_services_opened += 1
-    print("Total est : "+str(len(dictionary["data"]["services_opened"]))+"/"+str(cpt_services_opened))
+    try :
+        cpt_services_opened = 0
+        for i in dictionary["data"]["services_opened"]:
+            for j in SUSPICIOUS_PROCESS_NAMES:
+                if j in i:
+                    cpt_services_opened += 1
+            for j in SERVICES_KILLED:
+                if j in i:
+                    cpt_services_opened += 1
+        print("Total est : "+str(len(dictionary["data"]["services_opened"]))+"/"+str(cpt_services_opened))
+    except KeyError:
+        cpt_services_opened = 0
 
     # memory_pattern_urls
-    cpt_URLS_SUSPECTS = 0
-    for i in dictionary["data"]["memory_pattern_urls"]:
-        for j in URLS_SUSPECTS:
-            if j in i:
-                cpt_URLS_SUSPECTS += 1
-        
-    print("Total est : "+str(len(dictionary["data"]["memory_pattern_urls"]))+"/"+str(cpt_URLS_SUSPECTS))
+    try :
+        cpt_URLS_SUSPECTS = 0
+        for i in dictionary["data"]["memory_pattern_urls"]:
+            for j in URLS_SUSPECTS:
+                if j in i:
+                    cpt_URLS_SUSPECTS += 1
+            
+        print("Total est : "+str(len(dictionary["data"]["memory_pattern_urls"]))+"/"+str(cpt_URLS_SUSPECTS))
+    except KeyError:
+        cpt_URLS_SUSPECTS = 0
 
     # Calculate the probs
     total = cpt_URLS_SUSPECTS + cpt_services_opened + cpt_command_executions + cpt_files_dropped + cpt_files_written + cpt_files_copied + cpt_mitre_attack_techniques + cpt_processes_created + cpt_registry_keys_set + cpt_files_opened + cpt_mutexes_created + cpt_signature_matches + cpt_files_deleted + cpt_proc_ter + cpt_reg
